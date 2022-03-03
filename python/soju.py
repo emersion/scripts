@@ -5,7 +5,7 @@
 
 import weechat
 
-weechat.register("soju", "soju", "0.1.5", "AGPL3", "soju bouncer integration", "", "")
+weechat.register("soju", "soju", "0.1.6", "AGPL3", "soju bouncer integration", "", "")
 
 bouncer_cap = "soju.im/bouncer-networks"
 caps_option = weechat.config_get("irc.server_default.capabilities")
@@ -97,12 +97,15 @@ def handle_bouncer_msg(data, signal, signal_data):
     ]
 
     # User name settings need to be adapted for new networks
+    net_set = False
     for k in ["username", "sasl_username"]:
         v = weechat.config_string(weechat.config_get("irc.server." + server_name + "." + k))
         if not v:
             continue
-        username = v.split("/", maxsplit=1)[0] + "/" + net_name
-        add_server.append("-" + k + "=" + username)
+        if not net_set:
+            v = v.split("/", maxsplit=1)[0] + "/" + net_name
+            net_set = True
+        add_server.append("-" + k + "=" + v)
 
     for k in ["password", "sasl_mechanism", "sasl_password"]:
         v = weechat.config_string(weechat.config_get("irc.server." + server_name + "." + k))
